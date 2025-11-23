@@ -1,6 +1,7 @@
 import logging
 
 import click
+from click_option_group import optgroup
 
 from yt2navidrome.utils.banner import display_banner
 from yt2navidrome.utils.logging import disable_all_logging, get_logger, set_global_logging_level
@@ -9,30 +10,26 @@ logger = get_logger(__name__)
 
 
 @click.command
-@click.option(
+@optgroup.group("Misc")
+@optgroup.option(
     "--verbose",
     "-v",
     is_flag=True,
     default=False,
     help="Enable verbose logging",
 )
-@click.option(
+@optgroup.option(
     "--quiet",
     is_flag=True,
     default=False,
     help="Disable all logs",
 )
-# Lorem Ipsum Options
-# @optgroup.group("Lorem Ipsum", help="lorem ipsum")
-# @optgroup.option(
-#     [...]
-# )
 def main(
     verbose: bool,
     quiet: bool,
 ) -> None:
     """
-    CLI entrypoint
+    CLI tool to download YT videos and playlists with metadata required for Navidrome
     """
     # Finish setting up logging with args
     if verbose:
