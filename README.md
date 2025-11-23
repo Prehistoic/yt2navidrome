@@ -29,6 +29,14 @@ Finally, install the environment and the pre-commit hooks with
 make install
 ```
 
+> [!IMPORTANT]
+> Make sure to have both Poetry and its [Shell plugin](https://github.com/python-poetry/poetry-plugin-shell) installed !
+>
+> ```
+> pipx install poetry
+> pipx inject poetry poetry-plugin-shell
+> ```
+
 You are now ready to start development on your project!
 The CI/CD pipeline will be triggered when you open a pull request, merge to main, or when you create a new release.
 
