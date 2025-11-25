@@ -1,34 +1,40 @@
-[tool.poetry]
+[project]
 name = "yt2navidrome"
 version = "0.0.1"
 description = "CLI tool to download YT videos and playlists with metadata required for Navidrome"
-authors = ["Prehistoic <lacotematthieu@gmail.com>"]
-repository = "https://github.com/prehistoic/yt2navidrome"
-documentation = "https://prehistoic.github.io/yt2navidrome/"
+authors = [
+    {name = "Prehistoic", email = "lacotematthieu@gmail.com"}
+]
 readme = "README.md"
-packages = [
-  {include = "yt2navidrome"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+dependencies = [
+  "click>=8.1.0,<9.0",
+  "click-option-group>=0.5.9,<1.0",
+  "python-dotenv>=1.2.1,<2.0",
+  "pyfiglet>=1.0.4,<2.0",
+  "yt-dlp[default]>=2025.11.12",
+  "PyYAML>=6.0.3,<7.0"
 ]
 
-[tool.poetry.scripts]
+[dependency-groups]
+dev = [
+  "pytest>=7.2.0,<8.0",
+  "pytest-cov>=4.0.0,<5.0",
+  "deptry>=0.16.2,<1.0",
+  "mypy>=1.5.1,<2.0",
+  "types-yt-dlp>=2025.11.12",
+  "pre-commit>=3.4.0,<4.0",
+  "tox>=4.11.1,<5.0",
+]
+
+[project.urls]
+repository = "https://github.com/prehistoic/yt2navidrome"
+documentation = "https://prehistoic.github.io/yt2navidrome/"
+
+[project.scripts]
 yt2navidrome = "yt2navidrome.main:main"
-
-[tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-click = "^8.1.0"
-click-option-group = "^0.5.9"
-python-dotenv = "^1.2.1"
-pyfiglet = "^1.0.4"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.2.0"
-pytest-cov = "^4.0.0"
-deptry = "^0.16.2"
-mypy = "^1.5.1"
-pre-commit = "^3.4.0"
-tox = "^4.11.1"
-
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -44,15 +50,15 @@ warn_return_any = true
 warn_unused_ignores = true
 show_error_codes = true
 
-
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
 fix = true
+
+[tool.ruff.lint]
 select = [
     # flake8-2020
     "YTT",
@@ -101,7 +107,6 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["yt2navidrome"]
-
 
 [tool.ruff.per-file-ignores]
 "tests/*" = ["S101"]
