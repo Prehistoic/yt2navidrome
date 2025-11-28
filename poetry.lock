@@ -577,6 +577,22 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli ; python_full_version <= \"3.11.0a6\""]
 
 [[package]]
+name = "deno"
+version = "2.5.6"
+description = "Python redistribution of Deno binaries"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "deno-2.5.6-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:3a602e39ee6aedfe0ceb6334d88d6c1bae77ee7a92c5bc5159bf65bf764c322a"},
+    {file = "deno-2.5.6-py3-none-macosx_11_0_arm64.whl", hash = "sha256:e6c5914222e4564a6af4c9b197e603bde45acdb1b7ed57b4f56e2892bc7a1d6b"},
+    {file = "deno-2.5.6-py3-none-manylinux_2_17_aarch64.whl", hash = "sha256:68783e2278b7fd04adffd3d46c753593989316ceafbf373db410ad57e9c5369f"},
+    {file = "deno-2.5.6-py3-none-manylinux_2_17_x86_64.whl", hash = "sha256:8f657dabfda0d04b219cbfcb52351fcd569a1a565d3b3cdbaac8bc736b1b5ece"},
+    {file = "deno-2.5.6-py3-none-win_amd64.whl", hash = "sha256:107c776b275788b63b8ed768ddfea5ebae0e065a654189bef4532c87e08d72ba"},
+    {file = "deno-2.5.6.tar.gz", hash = "sha256:4fa5405c8cc43c908d145ad3ed0d7294227fd599da560a0513ba7d3a34948c80"},
+]
+
+[[package]]
 name = "deptry"
 version = "0.16.2"
 description = "A command line utility to check for unused, missing and transitive dependencies in a Python project."
@@ -632,6 +648,24 @@ typing-extensions = {version = ">=4.6.0", markers = "python_version < \"3.13\""}
 
 [package.extras]
 test = ["pytest (>=6)"]
+
+[[package]]
+name = "ffmpeg-downloader"
+version = "0.4.1"
+description = "FFmpeg Release Build Downloader"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "ffmpeg_downloader-0.4.1-py3-none-any.whl", hash = "sha256:a70e8d9c622c3c263b792661454e3be64969dd8c1654e84ad64f28dfd232a6b5"},
+    {file = "ffmpeg_downloader-0.4.1.tar.gz", hash = "sha256:388fa765176b8f140b7674a17aef70cf4d944174ea17e32a16187dc72cbc9c3b"},
+]
+
+[package.dependencies]
+packaging = "*"
+platformdirs = "*"
+requests = "*"
+tqdm = ">=4.40.0"
 
 [[package]]
 name = "filelock"
@@ -790,7 +824,7 @@ version = "25.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"},
     {file = "packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f"},
@@ -814,7 +848,7 @@ version = "4.4.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.9"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "platformdirs-4.4.0-py3-none-any.whl", hash = "sha256:abd01743f24e5287cd7a5db3752faf1a2d65353f38ec26d98e25a6db65958c85"},
     {file = "platformdirs-4.4.0.tar.gz", hash = "sha256:ca753cf4d81dc309bc67b0ea38fd15dc97bc30ce419a7f58d13eb3bf14c4febf"},
@@ -1197,6 +1231,28 @@ typing-extensions = {version = ">=4.14.1", markers = "python_version < \"3.11\""
 virtualenv = ">=20.31.2"
 
 [[package]]
+name = "tqdm"
+version = "4.67.1"
+description = "Fast, Extensible Progress Meter"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2"},
+    {file = "tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+dev = ["nbval", "pytest (>=6)", "pytest-asyncio (>=0.24)", "pytest-cov", "pytest-timeout"]
+discord = ["requests"]
+notebook = ["ipywidgets (>=6)"]
+slack = ["slack-sdk"]
+telegram = ["requests"]
+
+[[package]]
 name = "types-yt-dlp"
 version = "2025.11.12.20251115"
 description = "Typing stubs for yt-dlp"
@@ -1390,4 +1446,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "106926099741c866ab1e76d04c96e1bdeceea9cf79cdb767c0a7e4f5ddde45f9"
+content-hash = "fd4e7a0d657cd080bbebfd71fa417cefdafe79d8dabd9c7699a2b91a13bfe3da"

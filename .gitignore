@@ -2,6 +2,9 @@
 templates/
 output/
 
+# Cookies required for YT download
+yt2navidrome/data/cookies.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

@@ -8,6 +8,7 @@ class Template:
     name: str
     url: str
     playlist: bool
+    parsers: list[str]
 
     def summary(cls) -> str:
         template_type = "playlist" if cls.playlist else "video"

@@ -1,8 +1,11 @@
+from pathlib import Path
 from typing import Any, cast
 
 from yt_dlp import YoutubeDL
 
-from yt2navidrome.downloader import Playlist, VideoUtils
+from yt2navidrome.config import COOKIE_FILE_PATH
+from yt2navidrome.downloader.models import Playlist
+from yt2navidrome.downloader.video import VideoUtils
 from yt2navidrome.utils.logging import get_logger
 
 
@@ -29,6 +32,9 @@ class PlaylistUtils:
                 "force_generic_extractor": True,  # Ensure it processes the playlist URL as a playlist
                 "skip_download": True,  # Do not download anything
             }
+
+            if Path(COOKIE_FILE_PATH).exists():
+                ydl_opts.update({"cookiefile": COOKIE_FILE_PATH})
 
             # 1. Extract the playlist information
             # This step gets the list of entries (videos) in the playlist
