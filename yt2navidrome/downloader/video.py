@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import cast
 
@@ -6,18 +7,17 @@ from yt_dlp import YoutubeDL
 
 from yt2navidrome.config import COOKIE_FILE_PATH
 from yt2navidrome.downloader.models import Video
+from yt2navidrome.template import MetadataParser
 from yt2navidrome.utils.logging import get_logger
 
 
 def clean_path_ascii(s: str) -> str:
-    """Return a string with only safe ASCII characters for file paths (alphanum, _, -, .), no spaces, no dangerous chars."""
-    import re
-
+    """Return a string with only safe ASCII characters for file paths"""
     # Remove non-ASCII characters
     s = s.encode("ascii", "ignore").decode("ascii")
     # Remove forbidden characters in filenames
     s = re.sub(r'[<>:"/\\|?*]', "-", s)
-    # Remove leading/trailing spaces or -
+    # Remove leading/trailing - and spaces
     s = s.strip("- ")
     return s
 
@@ -87,24 +87,22 @@ class VideoUtils:
                 cls.logger.debug(f"{file} exists")
                 return True
 
-        cls.logger.debug(f"{expected_dir}/{expected_name} missing")
+        cls.logger.debug(f"{expected_dir / expected_name} missing")
         return False
 
     @classmethod
-    def download(cls, video: Video, output_dir: Path, custom_parsers: list[str]) -> Path | None:
+    def download(cls, video: Video, output_dir: Path) -> Path | None:
         """
-        Download a Youtube video URL while embedding relevant metadata.
+        Download a Youtube video URL.
 
         Args:
             video: The YouTube video to download.
             output_dir: Directory where the video will be saved
-            custom_parsers: A list of strings indicating yt-dlp how to parse metadata
 
         Returns:
             The path of the downloaded video (or None if download failed)
         """
         cls.logger.info(f"Starting download for {video.url}")
-        cls.logger.debug(f"Parsers used: {' | '.join(custom_parsers)}")
 
         if not output_dir.is_dir():
             cls.logger.error(f"Output directory {output_dir} not found")
@@ -120,16 +118,10 @@ class VideoUtils:
             "outtmpl": str(download_dir / download_filename_no_ext) + ".%(ext)s",
             "noplaylist": True,
             "writethumbnail": True,
-            # Parse metadata with given parsers
-            "parse_metadata": custom_parsers,
             # FFmpeg
             "ffmpeg_location": ffdl.ffmpeg_path,
-            # Postprocessor: Audio Extraction and Conversion
-            "postprocessors": [
-                {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
-                {"key": "EmbedThumbnail"},
-                {"key": "FFmpegMetadata"},
-            ],
+            # Postprocessors
+            "postprocessors": [{"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}, {"key": "EmbedThumbnail"}],
             # Verbosity
             "quiet": True,
             "noprogress": True,
@@ -155,3 +147,37 @@ class VideoUtils:
         except Exception:
             cls.logger.exception(f"Failed to download {video.url}")
             return None
+
+    @classmethod
+    def parse_metadata_from_info(cls, video: Video, parsers: list[MetadataParser]) -> dict[str, str]:
+        """
+        Parse video info to generate metadata entries.
+
+        Args:
+            video: The video to extract info from
+            parsers: A list of parsers to use to define the metadata entries values
+
+        Returns:
+            A dict with metadata entries (key: value)
+        """
+        cls.logger.info(f"Parsing metadata from video {video.title}")
+
+        metadata_entries = {}
+
+        for parser in parsers:
+            cls.logger.debug(parser.summary())
+
+            try:
+                source = getattr(video, parser.input)
+            except Exception:
+                cls.logger.exception(f"Failed to get attribute {parser.input} from Video instance")
+                return {}
+
+            compiled_pattern = re.compile(parser.regex)
+            match = compiled_pattern.search(source)
+
+            if match:
+                cls.logger.debug(f"Found matching values: {match.groupdict()}")
+                metadata_entries.update(match.groupdict())
+
+        return metadata_entries

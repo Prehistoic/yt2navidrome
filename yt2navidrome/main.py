@@ -7,11 +7,12 @@ from pathlib import Path
 import click
 from click_option_group import optgroup
 
+from yt2navidrome.config import CONSECUTIVE_DOWNLOADS_SLEEP_TIME
 from yt2navidrome.downloader.playlist import PlaylistUtils
 from yt2navidrome.downloader.video import Video, VideoUtils
 from yt2navidrome.template import Template, TemplateReader
 from yt2navidrome.utils.banner import display_banner
-from yt2navidrome.utils.ffmpeg_installer import FFmpegInstaller
+from yt2navidrome.utils.ffmpeg import FFmpegHelper, FFmpegInstaller
 from yt2navidrome.utils.logging import disable_all_logging, get_logger, set_global_logging_level
 
 logger = get_logger(__name__)
@@ -106,8 +107,33 @@ def process_template(template: Template, output_dir: Path) -> None:
     # Prepare the list of missing videos that we will need to download
     missing_videos: list[Video] = list(filter(lambda video: not VideoUtils.exists(video, output_dir), videos))
 
-    # Download videos while adding metadata based on regexes given in templates
+    if missing_videos:
+        logger.info(f"Missing videos to download: {len(missing_videos)}")
+    else:
+        logger.info("No missing videos. Exiting...")
+        sys.exit(0)
+
+    # Download videos then add metadata based on provided parsers from the template
     os.makedirs(output_dir, exist_ok=True)
-    for video in missing_videos:
-        VideoUtils.download(video, output_dir, template.parsers)
-        time.sleep(10)
+    for idx, video in enumerate(missing_videos):
+        logger.info(f"Processing missing video #{idx + 1}/{len(missing_videos)}")
+
+        download_path = VideoUtils.download(video, output_dir)
+
+        if download_path:
+            # Generate metadata entries from template parsers
+            metadata_entries = VideoUtils.parse_metadata_from_info(video, template.parsers)
+
+            # Then add metadata to the downloaded file
+            FFmpegHelper.add_metadata(download_path, metadata_entries)
+
+            # Finally We read tags from the downloaded file
+            if download_path:
+                tags = FFmpegHelper.get_tags(download_path)
+                artist: str = tags.get("artist", "Unknown Artist")
+                title: str = tags.get("title", "Untitled Song")
+                logger.info(f"{download_path.name} => Artist: {artist} / Title: {title}")
+
+        # Then we sleep for a bit to avoid YT rate limits
+        if idx != len(missing_videos) - 1:
+            time.sleep(CONSECUTIVE_DOWNLOADS_SLEEP_TIME)

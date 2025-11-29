@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 
 from yt2navidrome.template import Template
+from yt2navidrome.template.models import MetadataParser
 from yt2navidrome.utils.logging import get_logger
 
 
@@ -41,8 +42,11 @@ class TemplateReader:
 
                     # Check if data was loaded successfully and is a dictionary
                     if isinstance(yaml_data, dict):
-                        # Use dictionary unpacking (**) to pass key/value pairs
-                        # directly to the dataclass constructor.
+                        # Convert parser dicts to MetadataParser instances
+                        parsers = yaml_data.get("parsers", [])
+                        if isinstance(parsers, list):
+                            yaml_data["parsers"] = [MetadataParser(**p) if isinstance(p, dict) else p for p in parsers]
+
                         template = Template(**yaml_data)
                         templates.append(template)
                         cls.logger.debug(f"Successfully created template : {template.summary()}")

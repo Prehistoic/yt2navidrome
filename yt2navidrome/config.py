@@ -12,3 +12,8 @@ DATA_DIR = os.path.join(PROJECT_NAME, "data")
 
 # YT-DLP Options
 COOKIE_FILE_PATH = os.path.join(DATA_DIR, "cookies.txt")
+CONSECUTIVE_DOWNLOADS_SLEEP_TIME = 10
+
+# FFMpeg Options
+FFMPEG_URL_WINDOWS = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+ALLOWED_METADATA_INPUTS = ["title", "uploader"]
