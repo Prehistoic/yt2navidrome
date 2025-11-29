@@ -140,7 +140,12 @@ def process_template(template: Template, output_dir: Path) -> None:
                 tags = FFmpegHelper.get_tags(download_path)
                 artist: str = tags.get("artist", "ERROR")
                 title: str = tags.get("title", "ERROR")
-                logger.info(f"{download_path.name} => Artist: {artist} / Title: {title}")
+                album: str = tags.get("album", "ERROR")
+                track: int = tags.get("track", -1)
+                logger.info(f"{download_path.name} => Artist: {artist}")
+                logger.info(f"{download_path.name} => Title: {title}")
+                logger.info(f"{download_path.name} => Album: {album}")
+                logger.info(f"{download_path.name} => Track n°: {track}")
 
         # Then we sleep for a bit to avoid YT rate limits
         if idx != len(missing_videos) - 1:
