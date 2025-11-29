@@ -10,11 +10,15 @@ from yt2navidrome.utils.logging import get_logger
 
 
 def clean_path_ascii(s: str) -> str:
-    """Return a string with only safe ASCII characters for file paths, spaces to underscores, no trailing spaces."""
+    """Return a string with only safe ASCII characters for file paths (alphanum, _, -, .), no spaces, no dangerous chars."""
+    import re
+
     # Remove non-ASCII characters
     s = s.encode("ascii", "ignore").decode("ascii")
-    # Strip the string as we may have removed characters after the last space
-    s = s.strip()
+    # Remove forbidden characters in filenames
+    s = re.sub(r'[<>:"/\\|?*]', "-", s)
+    # Remove leading/trailing spaces or -
+    s = s.strip("- ")
     return s
 
 
@@ -72,7 +76,7 @@ class VideoUtils:
         expected_dir = output_dir / clean_path_ascii(video.uploader)
         expected_name = clean_path_ascii(video.title)
 
-        cls.logger.debug(f"Checking if {expected_dir}/{expected_name} exists")
+        cls.logger.debug(f"Checking if {expected_dir / expected_name} exists")
 
         if not expected_dir.is_dir():
             cls.logger.debug(f"Output dir {expected_dir} does not exist yet")
@@ -87,7 +91,7 @@ class VideoUtils:
         return False
 
     @classmethod
-    def download(cls, video: Video, output_dir: Path, custom_parsers: list[str]) -> None:
+    def download(cls, video: Video, output_dir: Path, custom_parsers: list[str]) -> Path | None:
         """
         Download a Youtube video URL while embedding relevant metadata.
 
@@ -106,14 +110,14 @@ class VideoUtils:
             cls.logger.error(f"Output directory {output_dir} not found")
             return None
 
+        download_filename_no_ext = clean_path_ascii(video.title)
         download_dir = output_dir / clean_path_ascii(video.uploader)
         download_dir.mkdir(exist_ok=True)
-        cls.logger.debug(f"Download dir: {download_dir}")
 
         ydl_opts = {
             # General Options
             "format": "bestaudio[ext=m4a]",
-            "outtmpl": str(download_dir / "%(title)s.%(ext)s"),
+            "outtmpl": str(download_dir / download_filename_no_ext) + ".%(ext)s",
             "noplaylist": True,
             "writethumbnail": True,
             # Parse metadata with given parsers
@@ -139,7 +143,14 @@ class VideoUtils:
             with YoutubeDL(ydl_opts) as ydl:  # type: ignore[arg-type]
                 ydl.download(video.url)
 
-            cls.logger.info(f"Successfully downloaded {video.url} to {download_dir}")
+            # Verifies the file was indeed downloaded and return its path
+            expected_path = download_dir / (download_filename_no_ext + ".mp4")
+            if expected_path.exists():
+                cls.logger.info(f"Successfully downloaded {video.url} to {expected_path}")
+                return expected_path
+            else:
+                cls.logger.warning(f"Download finished but no file found at {expected_path}")
+                return None
 
         except Exception:
             cls.logger.exception(f"Failed to download {video.url}")
