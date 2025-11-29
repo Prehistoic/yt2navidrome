@@ -17,3 +17,10 @@ CONSECUTIVE_DOWNLOADS_SLEEP_TIME = 10
 # FFMpeg Options
 FFMPEG_URL_WINDOWS = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
 ALLOWED_METADATA_INPUTS = ["title", "uploader"]
+
+# Default Song Metadata Values
+DEFAULT_TITLE = "Untitled"
+DEFAULT_ARTIST = "Unknown Artist"
+DEFAULT_ALBUM = "Unknown Album"
+DEFAULT_ALBUM_ARTIST = "Unknown Artist"
+DEFAULT_TRACK_NUMBER = "0"

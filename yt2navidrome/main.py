@@ -6,7 +6,14 @@ from pathlib import Path
 import click
 from click_option_group import optgroup
 
-from yt2navidrome.config import CONSECUTIVE_DOWNLOADS_SLEEP_TIME
+from yt2navidrome.config import (
+    CONSECUTIVE_DOWNLOADS_SLEEP_TIME,
+    DEFAULT_ALBUM,
+    DEFAULT_ALBUM_ARTIST,
+    DEFAULT_ARTIST,
+    DEFAULT_TITLE,
+    DEFAULT_TRACK_NUMBER,
+)
 from yt2navidrome.downloader.playlist import PlaylistUtils
 from yt2navidrome.downloader.video import VideoUtils
 from yt2navidrome.template import Template, TemplateReader
@@ -118,6 +125,13 @@ def process_template(template: Template, output_dir: Path) -> None:
         if download_path:
             # Generate metadata entries from template parsers
             metadata_entries = VideoUtils.parse_metadata_from_info(video, template.parsers)
+
+            # Ensure required metadata keys have default values
+            metadata_entries.setdefault("title", DEFAULT_TITLE)
+            metadata_entries.setdefault("artist", DEFAULT_ARTIST)
+            metadata_entries.setdefault("album", DEFAULT_ALBUM)
+            metadata_entries.setdefault("album_artist", DEFAULT_ALBUM_ARTIST)
+            metadata_entries.setdefault("track", DEFAULT_TRACK_NUMBER)
 
             # Then add metadata to the downloaded file
             FFmpegHelper.add_metadata(download_path, metadata_entries)

@@ -173,5 +173,7 @@ class VideoUtils:
             if match:
                 cls.logger.debug(f"Found matching values: {match.groupdict()}")
                 metadata_entries.update(match.groupdict())
+            else:
+                cls.logger.debug("Found no matching values")
 
         return metadata_entries
