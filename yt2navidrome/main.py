@@ -138,8 +138,8 @@ def process_template(template: Template, output_dir: Path) -> None:
             # Finally We read tags from the downloaded file
             if download_path:
                 tags = FFmpegHelper.get_tags(download_path)
-                artist: str = tags.get("artist", "Unknown Artist")
-                title: str = tags.get("title", "Untitled Song")
+                artist: str = tags.get("artist", "ERROR")
+                title: str = tags.get("title", "ERROR")
                 logger.info(f"{download_path.name} => Artist: {artist} / Title: {title}")
 
         # Then we sleep for a bit to avoid YT rate limits
