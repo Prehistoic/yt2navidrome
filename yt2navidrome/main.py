@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 import time
 from pathlib import Path
@@ -9,7 +8,7 @@ from click_option_group import optgroup
 
 from yt2navidrome.config import CONSECUTIVE_DOWNLOADS_SLEEP_TIME
 from yt2navidrome.downloader.playlist import PlaylistUtils
-from yt2navidrome.downloader.video import Video, VideoUtils
+from yt2navidrome.downloader.video import VideoUtils
 from yt2navidrome.template import Template, TemplateReader
 from yt2navidrome.utils.banner import display_banner
 from yt2navidrome.utils.ffmpeg import FFmpegHelper, FFmpegInstaller
@@ -96,16 +95,13 @@ def process_template(template: Template, output_dir: Path) -> None:
     """
     # Gather the list of videos based on the URLs in the given templates
     if template.playlist:
-        playlist = PlaylistUtils.extract_info_from_url(template.url)
+        playlist = PlaylistUtils.process_playlist_url(template.url, output_dir)
         if playlist:
-            videos = playlist.videos
+            missing_videos = playlist.videos
     else:
-        video = VideoUtils.extract_info_from_url(template.url)
+        video = VideoUtils.process_video_url(template.url, output_dir)
         if video:
-            videos = [video]
-
-    # Prepare the list of missing videos that we will need to download
-    missing_videos: list[Video] = list(filter(lambda video: not VideoUtils.exists(video, output_dir), videos))
+            missing_videos = [video]
 
     if missing_videos:
         logger.info(f"Missing videos to download: {len(missing_videos)}")
@@ -114,9 +110,8 @@ def process_template(template: Template, output_dir: Path) -> None:
         sys.exit(0)
 
     # Download videos then add metadata based on provided parsers from the template
-    os.makedirs(output_dir, exist_ok=True)
     for idx, video in enumerate(missing_videos):
-        logger.info(f"Processing missing video #{idx + 1}/{len(missing_videos)}")
+        logger.info(f"Processing missing video {idx + 1}/{len(missing_videos)}")
 
         download_path = VideoUtils.download(video, output_dir)
 

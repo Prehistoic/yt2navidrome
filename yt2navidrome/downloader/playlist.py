@@ -4,8 +4,9 @@ from typing import Any, cast
 from yt_dlp import YoutubeDL
 
 from yt2navidrome.config import COOKIE_FILE_PATH
+from yt2navidrome.downloader.common import check_if_already_downloaded, extract_video_id_from_url
 from yt2navidrome.downloader.models import Playlist
-from yt2navidrome.downloader.video import VideoUtils
+from yt2navidrome.downloader.video import Video, VideoUtils
 from yt2navidrome.utils.logging import get_logger
 
 
@@ -13,15 +14,37 @@ class PlaylistUtils:
     logger = get_logger(__name__)
 
     @classmethod
-    def extract_info_from_url(cls, playlist_url: str) -> Playlist | None:
+    def extract_video_if_needed(cls, entry: dict[str, Any], output_dir: Path) -> Video | None:
+        """Extract video info if not already downloaded."""
+        video_url = cast(str, entry.get("url"))
+        if not video_url:
+            cls.logger.error(f"Failed to process video. Invalid URL: {video_url}")
+            return None
+
+        video_id = extract_video_id_from_url(video_url)
+        if not video_id:
+            cls.logger.error("Failed to process video. No YT ID found")
+            return None
+
+        if check_if_already_downloaded(output_dir, video_id):
+            cls.logger.debug(f"Video with ID {video_id} already exists. Skipping...")
+            return None
+
+        # Can skip check since already done above
+        video = VideoUtils.process_video_url(video_url, output_dir, check_if_exists=False)
+        return video
+
+    @classmethod
+    def process_playlist_url(cls, playlist_url: str, output_dir: Path) -> Playlist | None:
         """
-        Extracts URL and title for each video in a YouTube playlist
+        Extracts info for videos in a YouTube playlist. Skips videos already downloaded.
 
         Args:
             playlist_url: The URL of the YouTube playlist.
+            output_dir: Path where the missing videos would be downloaded.
 
         Returns:
-            A Playlist instance.
+            A Playlist instance (or None).
         """
         try:
             cls.logger.info(f"Processing playlist {playlist_url}")
@@ -36,8 +59,7 @@ class PlaylistUtils:
             if Path(COOKIE_FILE_PATH).exists():
                 ydl_opts.update({"cookiefile": COOKIE_FILE_PATH})
 
-            # 1. Extract the playlist information
-            # This step gets the list of entries (videos) in the playlist
+            # Extract the playlist information
             with YoutubeDL(ydl_opts) as ydl:  # type: ignore[arg-type]
                 playlist_info = ydl.extract_info(playlist_url, download=False)
 
@@ -51,25 +73,12 @@ class PlaylistUtils:
             cls.logger.info(f"Playlist found: **{playlist_title}**")
             cls.logger.info(f"Total videos to process: {len(entries)}")
 
-            # 2. Iterate over the entries in the playlist
-            playlist_videos = []
-            for idx, entry in enumerate(entries):
-                if not entry:
-                    continue
+            # Extract videos, filtering out None and skipped ones
+            playlist_videos = [
+                v for entry in entries if entry for v in [cls.extract_video_if_needed(entry, output_dir)] if v
+            ]
 
-                cls.logger.info(f"Processing video #{idx + 1}")
-
-                video_url = cast(str, entry.get("url"))
-                if not video_url:
-                    cls.logger.error(f"Failed to process video. Invalid URL: {video_url}")
-                    continue
-
-                video = VideoUtils.extract_info_from_url(video_url)
-
-                if video:
-                    playlist_videos.append(video)
-
-            # 3. Create and return Playlist instance
+            # Create and return Playlist instance
             return Playlist(title=playlist_title, videos=playlist_videos)
 
         except Exception as e:

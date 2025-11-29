@@ -6,6 +6,7 @@ import ffmpeg_downloader as ffdl
 from yt_dlp import YoutubeDL
 
 from yt2navidrome.config import COOKIE_FILE_PATH
+from yt2navidrome.downloader.common import check_if_already_downloaded, extract_video_id_from_url
 from yt2navidrome.downloader.models import Video
 from yt2navidrome.template import MetadataParser
 from yt2navidrome.utils.logging import get_logger
@@ -26,19 +27,32 @@ class VideoUtils:
     logger = get_logger(__name__)
 
     @classmethod
-    def extract_info_from_url(cls, video_url: str) -> Video | None:
+    def process_video_url(cls, video_url: str, output_dir: Path, check_if_exists: bool = True) -> Video | None:
         """
         Extracts relevant info from a Youtube video URL.
 
         Args:
             video_url: The URL of the YouTube video.
+            output_dir: Path where the missing videos would be downloaded.
+            check_if_exists: Whether or not to check if the video was already downloaded.
 
         Returns:
-            A Video instance.
+            A Video instance (or None).
         """
         try:
             cls.logger.debug(f"Starting video scan for {video_url}...")
 
+            if check_if_exists:
+                video_id = extract_video_id_from_url(video_url)
+                if not video_id:
+                    cls.logger.error("Failed to process video. No YT ID found")
+                    return None
+
+                if check_if_already_downloaded(output_dir, video_id):
+                    cls.logger.debug(f"Video with ID {video_id} already exists. Skipping...")
+                    return None
+
+            # 1. Extract the video information
             ydl_opts = {
                 "quiet": True,
                 "format": "bestaudio/best",
@@ -51,7 +65,6 @@ class VideoUtils:
             if Path(COOKIE_FILE_PATH).exists():
                 ydl_opts.update({"cookiefile": COOKIE_FILE_PATH})
 
-            # 1. Extract the video information
             with YoutubeDL(ydl_opts) as ydl:  # type: ignore[arg-type]
                 video_info = ydl.extract_info(video_url, download=False)
 
@@ -71,26 +84,6 @@ class VideoUtils:
             return None
 
     @classmethod
-    def exists(cls, video: Video, output_dir: Path) -> bool:
-        """Check if a file exists at output_dir/video.uploader/video.title with any extension."""
-        expected_dir = output_dir / clean_path_ascii(video.uploader)
-        expected_name = clean_path_ascii(video.title)
-
-        cls.logger.debug(f"Checking if {expected_dir / expected_name} exists")
-
-        if not expected_dir.is_dir():
-            cls.logger.debug(f"Output dir {expected_dir} does not exist yet")
-            return False
-
-        for file in expected_dir.iterdir():
-            if file.is_file() and file.stem == expected_name:
-                cls.logger.debug(f"{file} exists")
-                return True
-
-        cls.logger.debug(f"{expected_dir / expected_name} missing")
-        return False
-
-    @classmethod
     def download(cls, video: Video, output_dir: Path) -> Path | None:
         """
         Download a Youtube video URL.
@@ -104,13 +97,14 @@ class VideoUtils:
         """
         cls.logger.info(f"Starting download for {video.url}")
 
-        if not output_dir.is_dir():
-            cls.logger.error(f"Output directory {output_dir} not found")
+        video_id = extract_video_id_from_url(video.url)
+        if not video_id:
+            cls.logger.error("Failed to process video. No YT ID found")
             return None
 
         download_filename_no_ext = clean_path_ascii(video.title)
-        download_dir = output_dir / clean_path_ascii(video.uploader)
-        download_dir.mkdir(exist_ok=True)
+        download_dir = output_dir / clean_path_ascii(video.uploader) / video_id
+        download_dir.mkdir(parents=True, exist_ok=True)
 
         ydl_opts = {
             # General Options
