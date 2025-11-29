@@ -9,7 +9,6 @@ from click_option_group import optgroup
 from yt2navidrome.config import (
     CONSECUTIVE_DOWNLOADS_SLEEP_TIME,
     DEFAULT_ALBUM,
-    DEFAULT_ALBUM_ARTIST,
     DEFAULT_ARTIST,
     DEFAULT_TITLE,
     DEFAULT_TRACK_NUMBER,
@@ -130,8 +129,8 @@ def process_template(template: Template, output_dir: Path) -> None:
             metadata_entries.setdefault("title", DEFAULT_TITLE)
             metadata_entries.setdefault("artist", DEFAULT_ARTIST)
             metadata_entries.setdefault("album", DEFAULT_ALBUM)
-            metadata_entries.setdefault("album_artist", DEFAULT_ALBUM_ARTIST)
             metadata_entries.setdefault("track", DEFAULT_TRACK_NUMBER)
+            metadata_entries["album_artist"] = metadata_entries["artist"]
 
             # Then add metadata to the downloaded file
             FFmpegHelper.add_metadata(download_path, metadata_entries)
