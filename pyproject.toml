@@ -37,7 +37,7 @@ repository = "https://github.com/prehistoic/yt2navidrome"
 documentation = "https://prehistoic.github.io/yt2navidrome/"
 
 [project.scripts]
-yt2navidrome = "yt2navidrome.main:main"
+yt2navidrome = "yt2navidrome.main:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
