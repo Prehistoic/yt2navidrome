@@ -16,6 +16,7 @@ logger = get_logger(__name__)
 @optgroup.option("-v", "--value", help="Value to insert into tag")
 @click.argument("input_file", type=click.Path(exists=True, file_okay=True, dir_okay=False, path_type=Path))
 def edit(input_file: Path, tag: str, value: str) -> None:
+    """Add or edit given tag to video file with FFmpeg"""
     if not input_file.exists():
         logger.error(f"{input_file} not found. Exiting...")
         sys.exit(-1)
