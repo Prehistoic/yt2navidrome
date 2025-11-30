@@ -2,8 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from yt2navidrome.template import Template
-from yt2navidrome.template.models import MetadataParser
+from yt2navidrome.template.models import Template
 from yt2navidrome.utils.logging import get_logger
 
 
@@ -38,20 +37,14 @@ class TemplateReader:
                 try:
                     # Open and read the YAML file
                     with open(file_path) as f:
-                        yaml_data = yaml.safe_load(f)
+                        template = yaml.safe_load(f)
 
                     # Check if data was loaded successfully and is a dictionary
-                    if isinstance(yaml_data, dict):
-                        # Convert parser dicts to MetadataParser instances
-                        parsers = yaml_data.get("parsers", [])
-                        if isinstance(parsers, list):
-                            yaml_data["parsers"] = [MetadataParser(**p) if isinstance(p, dict) else p for p in parsers]
-
-                        template = Template(**yaml_data)
+                    if isinstance(template, Template):
                         templates.append(template)
                         cls.logger.debug(f"Successfully created template : {template.summary()}")
                     else:
-                        cls.logger.warning(f"File {file_path} is empty or not a valid map/dictionary.")
+                        cls.logger.warning(f"File {file_path} is empty or not a valid Template.")
 
                 except yaml.YAMLError:
                     cls.logger.exception(f"Error parsing YAML in {file_path}")

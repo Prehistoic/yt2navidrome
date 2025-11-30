@@ -11,11 +11,11 @@ from yt2navidrome.config import (
     DEFAULT_ALBUM,
     DEFAULT_ARTIST,
     DEFAULT_TITLE,
-    DEFAULT_TRACK_NUMBER,
 )
 from yt2navidrome.downloader.playlist import PlaylistUtils
 from yt2navidrome.downloader.video import VideoUtils
-from yt2navidrome.template import Template, TemplateReader
+from yt2navidrome.template import TemplateReader
+from yt2navidrome.template.models import Template
 from yt2navidrome.utils.banner import display_banner
 from yt2navidrome.utils.ffmpeg import FFmpegHelper, FFmpegInstaller
 from yt2navidrome.utils.logging import disable_all_logging, get_logger, set_global_logging_level
@@ -129,7 +129,6 @@ def process_template(template: Template, output_dir: Path) -> None:
             metadata_entries.setdefault("title", DEFAULT_TITLE)
             metadata_entries.setdefault("artist", DEFAULT_ARTIST)
             metadata_entries.setdefault("album", DEFAULT_ALBUM)
-            metadata_entries.setdefault("track", DEFAULT_TRACK_NUMBER)
             metadata_entries["album_artist"] = metadata_entries["artist"]
 
             # Then add metadata to the downloaded file
@@ -141,11 +140,11 @@ def process_template(template: Template, output_dir: Path) -> None:
                 artist: str = tags.get("artist", "ERROR")
                 title: str = tags.get("title", "ERROR")
                 album: str = tags.get("album", "ERROR")
-                track: int = tags.get("track", -1)
+                album_artist: str = tags.get("album_artist", "ERROR")
                 logger.info(f"{download_path.name} => Artist: {artist}")
                 logger.info(f"{download_path.name} => Title: {title}")
                 logger.info(f"{download_path.name} => Album: {album}")
-                logger.info(f"{download_path.name} => Track n°: {track}")
+                logger.info(f"{download_path.name} => Album Artist: {album_artist}")
 
         # Then we sleep for a bit to avoid YT rate limits
         if idx != len(missing_videos) - 1:

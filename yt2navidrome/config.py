@@ -22,4 +22,3 @@ ALLOWED_METADATA_INPUTS = ["title", "uploader"]
 DEFAULT_TITLE = "Untitled"
 DEFAULT_ARTIST = "Unknown Artist"
 DEFAULT_ALBUM = "Unknown Album"
-DEFAULT_TRACK_NUMBER = "0"

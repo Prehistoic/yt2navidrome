@@ -7,8 +7,9 @@ from yt_dlp import YoutubeDL
 
 from yt2navidrome.config import COOKIE_FILE_PATH
 from yt2navidrome.downloader.common import check_if_already_downloaded, extract_video_id_from_url
+from yt2navidrome.downloader.metadata import MetadataUtils
 from yt2navidrome.downloader.models import Video
-from yt2navidrome.template import MetadataParser
+from yt2navidrome.template.models import MetadataParser
 from yt2navidrome.utils.logging import get_logger
 
 
@@ -40,7 +41,7 @@ class VideoUtils:
             A Video instance (or None).
         """
         try:
-            cls.logger.debug(f"Starting video scan for {video_url}...")
+            cls.logger.debug(f"Starting video scan for {video_url}")
 
             if check_if_exists:
                 video_id = extract_video_id_from_url(video_url)
@@ -159,21 +160,7 @@ class VideoUtils:
         metadata_entries = {}
 
         for parser in parsers:
-            cls.logger.debug(parser.summary())
-
-            try:
-                source = getattr(video, parser.input)
-            except Exception:
-                cls.logger.exception(f"Failed to get attribute {parser.input} from Video instance")
-                return {}
-
-            compiled_pattern = re.compile(parser.regex)
-            match = compiled_pattern.search(source)
-
-            if match:
-                cls.logger.debug(f"Found matching values: {match.groupdict()}")
-                metadata_entries.update(match.groupdict())
-            else:
-                cls.logger.debug("Found no matching values")
+            parser_result = MetadataUtils.run_parser(video, parser)
+            metadata_entries.update(parser_result)
 
         return metadata_entries

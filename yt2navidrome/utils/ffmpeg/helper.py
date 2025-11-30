@@ -2,7 +2,7 @@ import json
 import subprocess as sp
 import tempfile
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import ffmpeg_downloader as ffdl
 
@@ -13,7 +13,7 @@ class FFmpegHelper:
     logger = get_logger(__name__)
 
     @classmethod
-    def get_metadata(cls, filepath: Path) -> dict:
+    def get_metadata(cls, filepath: Path) -> dict[str, Any]:
         """
         Return metadata as a dict using ffprobe, or None on error.
 
@@ -39,7 +39,7 @@ class FFmpegHelper:
 
             cls.logger.debug(f"Running: {' '.join(command)}")
             result = sp.run(command, capture_output=True, encoding="utf-8", check=True)  # noqa: S603
-            return cast(dict, json.loads(result.stdout))
+            return cast(dict[str, Any], json.loads(result.stdout))
 
         except FileNotFoundError:
             cls.logger.exception(f"Failed to extract metadata: ffprobe command not found at {ffdl.ffprobe_path}")
@@ -64,8 +64,8 @@ class FFmpegHelper:
 
         metadata = cls.get_metadata(filepath)
 
-        format: dict = metadata.get("format", {})  # noqa: A001
-        tags: dict = format.get("tags", {})
+        format: dict[str, Any] = metadata.get("format", {})  # noqa: A001
+        tags: dict[str, str] = format.get("tags", {})
         return tags
 
     @classmethod
