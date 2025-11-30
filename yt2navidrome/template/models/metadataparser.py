@@ -4,7 +4,7 @@ import yaml
 from yaml.dumper import Dumper
 from yaml.loader import FullLoader
 
-from yt2navidrome.template.models import PostProcessor
+from yt2navidrome.template.models.postprocessor import PostProcessor
 
 
 @dataclass

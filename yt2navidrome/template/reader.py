@@ -37,7 +37,7 @@ class TemplateReader:
                 try:
                     # Open and read the YAML file
                     with open(file_path) as f:
-                        template = yaml.safe_load(f)
+                        template = yaml.load(f, Loader=yaml.FullLoader)  # noqa: S506
 
                     # Check if data was loaded successfully and is a dictionary
                     if isinstance(template, Template):
