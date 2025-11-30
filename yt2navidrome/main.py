@@ -129,6 +129,13 @@ def process_template(template: Template, output_dir: Path) -> None:
             metadata_entries.setdefault("title", DEFAULT_TITLE)
             metadata_entries.setdefault("artist", DEFAULT_ARTIST)
             metadata_entries.setdefault("album", DEFAULT_ALBUM)
+
+            # Reshaping artist to preserve all-uppercase words and capitalize others
+            words = metadata_entries["artist"].split()
+            reshaped_words = [word if word.isupper() else word.capitalize() for word in words]
+            metadata_entries["artist"] = " ".join(reshaped_words)
+
+            # Album Artist should be the same than the Artist
             metadata_entries["album_artist"] = metadata_entries["artist"]
 
             # Then add metadata to the downloaded file
