@@ -91,8 +91,10 @@ class FFmpegHelper:
         original_filepath = filepath
 
         # 1. Create a temporary output file path
-        # Use the same directory as the input for safer rename/move operation
-        with tempfile.NamedTemporaryFile(delete=False, suffix=filepath.suffix) as tmp:
+        # Use a temp directory in the same parent directory as the file for same-disk operation
+        temp_dir = filepath.parent / "temp"
+        temp_dir.mkdir(exist_ok=True)
+        with tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix=filepath.suffix) as tmp:
             temp_filepath = Path(tmp.name)
 
         cls.logger.debug(f"Using temp file: {temp_filepath}")
