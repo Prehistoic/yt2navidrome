@@ -117,7 +117,7 @@ class VideoUtils:
             # FFmpeg
             "ffmpeg_location": ffdl.ffmpeg_path,
             # Postprocessors
-            "postprocessors": [{"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}, {"key": "EmbedThumbnail"}],
+            "postprocessors": [{"key": "EmbedThumbnail"}],
             # Verbosity
             "quiet": True,
             "noprogress": True,
