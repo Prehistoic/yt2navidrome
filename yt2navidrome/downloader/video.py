@@ -132,7 +132,7 @@ class VideoUtils:
                 ydl.download(video.url)
 
             # Verifies the file was indeed downloaded and return its path
-            expected_path = download_dir / (download_filename_no_ext + ".mp4")
+            expected_path = download_dir / (download_filename_no_ext + ".m4a")
             if expected_path.exists():
                 cls.logger.info(f"Successfully downloaded {video.url} to {expected_path}")
                 return expected_path
