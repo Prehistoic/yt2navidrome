@@ -19,6 +19,7 @@ def clean_path_ascii(s: str) -> str:
     s = s.encode("ascii", "ignore").decode("ascii")
     # Remove forbidden characters in filenames
     s = re.sub(r'[<>:"/\\|?*]', "-", s)
+    s = s.replace(".", "")
     # Remove leading/trailing - and spaces
     s = s.strip("- ")
     return s
