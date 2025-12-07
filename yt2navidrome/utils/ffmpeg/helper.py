@@ -25,7 +25,7 @@ class FFmpegHelper:
         """
         cls.logger.debug(f"Extracting metadata from {filepath}")
 
-        video_exts = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
+        video_exts = {".m4a", ".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
         if not filepath.is_file():
             cls.logger.error(f"Failed to extract metadata: {filepath} does not exist")
             return {}
