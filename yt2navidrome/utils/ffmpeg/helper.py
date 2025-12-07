@@ -8,6 +8,8 @@ import ffmpeg_downloader as ffdl
 
 from yt2navidrome.utils.logging import get_logger
 
+VIDEO_EXTS = {".m4a", ".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
+
 
 class FFmpegHelper:
     logger = get_logger(__name__)
@@ -25,12 +27,11 @@ class FFmpegHelper:
         """
         cls.logger.debug(f"Extracting metadata from {filepath}")
 
-        video_exts = {".m4a", ".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
         if not filepath.is_file():
             cls.logger.error(f"Failed to extract metadata: {filepath} does not exist")
             return {}
 
-        if filepath.suffix.lower() not in video_exts:
+        if filepath.suffix.lower() not in VIDEO_EXTS:
             cls.logger.error(f"Failed to extract metadata: {filepath} is not a video file")
             return {}
 
@@ -79,12 +80,11 @@ class FFmpegHelper:
         """
         cls.logger.info(f"Adding metadata to {filepath}")
 
-        video_exts = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
         if not filepath.is_file():
             cls.logger.error(f"Failed to add metadata: {filepath} does not exist")
             return None
 
-        if filepath.suffix.lower() not in video_exts:
+        if filepath.suffix.lower() not in VIDEO_EXTS:
             cls.logger.error(f"Failed to add metadata: {filepath} is not a video file")
             return None
 
