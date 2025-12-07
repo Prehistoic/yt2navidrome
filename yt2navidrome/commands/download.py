@@ -77,8 +77,7 @@ def process_template(template: Template, output_dir: Path) -> None:
     if missing_videos:
         logger.info(f"Missing videos to download: {len(missing_videos)}")
     else:
-        logger.info("No missing videos. Exiting...")
-        sys.exit(0)
+        logger.info("No missing videos")
 
     # Download videos then add metadata based on provided parsers from the template
     for idx, video in enumerate(missing_videos):
