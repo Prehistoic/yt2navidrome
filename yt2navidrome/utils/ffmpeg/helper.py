@@ -146,4 +146,5 @@ class FFmpegHelper:
                     temp_filepath.unlink()
 
                 # 6. Remove tempdir
-                temp_dir.rmdir()
+                if temp_dir.is_dir():
+                    temp_dir.rmdir()
