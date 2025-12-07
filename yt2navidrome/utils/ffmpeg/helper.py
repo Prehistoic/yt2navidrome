@@ -144,3 +144,6 @@ class FFmpegHelper:
                 if temp_filepath.exists():
                     cls.logger.debug(f"Cleaning up un-renamed temp file: {temp_filepath}")
                     temp_filepath.unlink()
+
+                # 6. Remove tempdir
+                temp_dir.rmdir()
