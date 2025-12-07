@@ -97,50 +97,50 @@ class FFmpegHelper:
         with tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix=filepath.suffix) as tmp:
             temp_filepath = Path(tmp.name)
 
-        cls.logger.debug(f"Using temp file: {temp_filepath}")
+            cls.logger.debug(f"Using temp file: {temp_filepath}")
 
-        # 2. Preparing the ffmpeg command
-        command = [
-            ffdl.ffmpeg_path,
-            "-v",
-            "error",
-            "-y",  # Overwrite output files without asking
-            "-i",
-            str(filepath),
-        ]
+            # 2. Preparing the ffmpeg command
+            command = [
+                ffdl.ffmpeg_path,
+                "-v",
+                "error",
+                "-y",  # Overwrite output files without asking
+                "-i",
+                str(filepath),
+            ]
 
-        # Add all metadata options
-        for key, value in entries.items():
-            cls.logger.debug(f"Adding metadata: {key} = {value}")
-            metadata_options = ["-metadata", f"{key}={value}"]
-            command.extend(metadata_options)
+            # Add all metadata options
+            for key, value in entries.items():
+                cls.logger.debug(f"Adding metadata: {key} = {value}")
+                metadata_options = ["-metadata", f"{key}={value}"]
+                command.extend(metadata_options)
 
-        # Add copy codec and the temporary output file path
-        # -c copy avoids re-encoding, making the process fast
-        command.extend(["-c", "copy", str(temp_filepath)])
+            # Add copy codec and the temporary output file path
+            # -c copy avoids re-encoding, making the process fast
+            command.extend(["-c", "copy", str(temp_filepath)])
 
-        # 3. Executing the ffmpeg command
-        try:
-            cls.logger.debug(f"Running FFmpeg: {' '.join(command)}")
-            sp.run(command, check=True)  # noqa: S603
+            # 3. Executing the ffmpeg command
+            try:
+                cls.logger.debug(f"Running FFmpeg: {' '.join(command)}")
+                sp.run(command, check=True)  # noqa: S603
 
-            # 4. If successful, replace the original file with the temporary file
-            cls.logger.debug(f"FFmpeg successful. Overwriting {original_filepath} with {temp_filepath}")
-            temp_filepath.replace(original_filepath)
+                # 4. If successful, replace the original file with the temporary file
+                cls.logger.debug(f"FFmpeg successful. Overwriting {original_filepath} with {temp_filepath}")
+                temp_filepath.replace(original_filepath)
 
-        except FileNotFoundError:
-            cls.logger.exception(f"Failed to add metadata: ffmpeg command not found at {ffdl.ffmpeg_path}")
+            except FileNotFoundError:
+                cls.logger.exception(f"Failed to add metadata: ffmpeg command not found at {ffdl.ffmpeg_path}")
 
-        except sp.CalledProcessError:
-            cls.logger.exception("Failed to add metadata: ffmpeg command error")
+            except sp.CalledProcessError:
+                cls.logger.exception("Failed to add metadata: ffmpeg command error")
 
-        except OSError:
-            cls.logger.exception(
-                f"Failed to rename/replace the file: Could not move {temp_filepath} to {original_filepath}"
-            )
+            except OSError:
+                cls.logger.exception(
+                    f"Failed to rename/replace the file: Could not move {temp_filepath} to {original_filepath}"
+                )
 
-        finally:
-            # 5. Ensure the temporary file is deleted if it still exists (e.g., if os.replace failed)
-            if temp_filepath.exists():
-                cls.logger.debug(f"Cleaning up un-renamed temp file: {temp_filepath}")
-                temp_filepath.unlink()
+            finally:
+                # 5. Ensure the temporary file is deleted if it still exists (e.g., if os.replace failed)
+                if temp_filepath.exists():
+                    cls.logger.debug(f"Cleaning up un-renamed temp file: {temp_filepath}")
+                    temp_filepath.unlink()
